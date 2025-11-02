@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.datastructurevisualizer.controller.TreeController">
+
+    <center>
+        <TabPane fx:id="treeTabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+
+                <!-- 二叉树标签页 -->
+                <Tab text="🌳 二叉树">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 树信息 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="binaryTreeInfoLabel" text="二叉树: 大小=0, 高度=0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        </HBox>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="值:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="binaryTreeValueField" promptText="输入节点值" prefWidth="80"/>
+                            <Label text="方式:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <ComboBox fx:id="insertMethodCombo" prefWidth="100"/>
+                            <Button fx:id="insertBinaryTreeBtn" text="插入节点"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="clearBinaryTreeBtn" text="清空树"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 遍历控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="遍历:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <ComboBox fx:id="traversalCombo" prefWidth="100"/>
+                            <Button fx:id="traverseBtn" text="执行遍历"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="binaryTreeOutput" prefHeight="100"
+                                  promptText="二叉树操作输出将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="binaryTreeCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <!-- 二叉搜索树标签页 -->
+                <Tab text="🔍 二叉搜索树">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 树信息 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label fx:id="bstInfoLabel" text="BST: 大小=0, 高度=0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        </HBox>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="值:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="bstValueField" promptText="输入节点值" prefWidth="80"/>
+                            <Button fx:id="insertBstBtn" text="插入"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="searchBstBtn" text="查找"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="deleteBstBtn" text="删除"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="clearBstBtn" text="清空BST"
+                                    style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 搜索步骤导航 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #d5dbdb; -fx-border-radius: 5;">
+                            <Label text="搜索步骤导航:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="prevStepBtn" text="◀ 上一步"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Label fx:id="stepInfoLabel" text="步骤: 0/0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="nextStepBtn" text="下一步 ▶"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Button fx:id="autoDemoBtn" text="自动演示"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+                            <Button fx:id="resetSearchBtn" text="重置"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="bstOutput" prefHeight="80"
+                                  promptText="BST操作输出将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="bstCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <!-- 哈夫曼树标签页 -->
+                <Tab text="📊 哈夫曼树">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="文本:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="huffmanInputField" promptText="输入要编码的文本" prefWidth="200"/>
+                            <Button fx:id="buildHuffmanBtn" text="构建哈夫曼树"
+                                    style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="clearHuffmanBtn" text="清空"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="huffmanOutput" prefHeight="120"
+                                  promptText="哈夫曼编码将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="huffmanCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>
