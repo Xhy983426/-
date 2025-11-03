@@ -102,6 +102,20 @@
                                     style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
                         </HBox>
 
+                        <!-- 步骤导航 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #d5dbdb; -fx-border-radius: 5;">
+                            <Label text="步骤导航:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="prevArrayStepBtn" text="◀ 上一步"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Label fx:id="arrayStepInfoLabel" text="步骤: 0/0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="nextArrayStepBtn" text="下一步 ▶"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Button fx:id="arrayAutoDemoBtn" text="自动演示"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+                        </HBox>
+
                         <!-- 输出区域 -->
                         <TextArea fx:id="arrayOutput" prefHeight="80"
                                   promptText="顺序表操作输出将显示在这里..."

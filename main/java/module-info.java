@@ -11,6 +11,5 @@ module com.datastructurevisualizer {
     exports com.datastructurevisualizer;
     exports com.datastructurevisualizer.controller;
     exports com.datastructurevisualizer.model;
-    exports com.datastructurevisualizer.view;
     exports com.datastructurevisualizer.view.components;
 }
