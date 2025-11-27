@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.datastructurevisualizer.controller.LinearStructureController">
+
+    <center>
+        <TabPane fx:id="linearTabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+
+                <!-- 链表标签页 -->
+                <Tab text="链表">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="值:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="listValueField" promptText="输入节点值" prefWidth="80"/>
+                            <Label text="位置:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="listIndexField" promptText="位置索引" prefWidth="100"/>
+                            <Button fx:id="createListBtn" text="创建链表"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="insertListBtn" text="插入节点"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="deleteListBtn" text="删除节点"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+                        <!-- 链表步骤导航 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #d5dbdb; -fx-border-radius: 5;">
+                            <Label text="步骤导航:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="prevListStepBtn" text="◀ 上一步"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Label fx:id="listStepInfoLabel" text="步骤: 0/0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="nextListStepBtn" text="下一步 ▶"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Button fx:id="listAutoDemoBtn" text="自动演示"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+                            <Button fx:id="resetListBtn" text="重置"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="listOutput" prefHeight="80"
+                                  promptText="链表操作输出将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="listCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <!-- 栈标签页 -->
+                <Tab text="栈">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="值:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="stackValueField" promptText="输入入栈值" prefWidth="100"/>
+                            <Label text="容量:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="stackCapacityField" promptText="栈容量" prefWidth="80" text="10"/>
+                            <Button fx:id="createStackBtn" text="创建栈"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="pushStackBtn" text="入栈"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="popStackBtn" text="出栈"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="stackOutput" prefHeight="80"
+                                  promptText="栈操作输出将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="stackCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <!-- 顺序表标签页 -->
+                <Tab text="顺序表">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 控制面板 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #ecf0f1; -fx-border-radius: 5;">
+                            <Label text="值:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="arrayValueField" promptText="输入元素值" prefWidth="80"/>
+                            <Label text="位置:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <TextField fx:id="arrayIndexField" promptText="位置索引" prefWidth="100"/>
+                            <Button fx:id="createArrayBtn" text="创建顺序表"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="insertArrayBtn" text="插入元素"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            <Button fx:id="deleteArrayBtn" text="删除元素"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+
+                        <!-- 步骤导航 -->
+                        <HBox spacing="10" alignment="CENTER_LEFT"
+                              style="-fx-padding: 10; -fx-background-color: #d5dbdb; -fx-border-radius: 5;">
+                            <Label text="步骤导航:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="prevArrayStepBtn" text="◀ 上一步"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Label fx:id="arrayStepInfoLabel" text="步骤: 0/0"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Button fx:id="nextArrayStepBtn" text="下一步 ▶"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                            <Button fx:id="arrayAutoDemoBtn" text="自动演示"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+                        </HBox>
+
+                        <!-- 输出区域 -->
+                        <TextArea fx:id="arrayOutput" prefHeight="80"
+                                  promptText="顺序表操作输出将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+
+                        <!-- 可视化画布 -->
+                        <Pane fx:id="arrayCanvas"
+                              style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
+                              VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>

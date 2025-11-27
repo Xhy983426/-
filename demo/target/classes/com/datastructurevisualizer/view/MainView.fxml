@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane fx:id="mainBorderPane" xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.datastructurevisualizer.controller.MainController">
+
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #2c3e50;">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            <Label text="数据结构可视化工具"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"
+                   alignment="CENTER"/>
+            <Label text="支持线性结构和树形结构的动态可视化展示"
+                   style="-fx-font-size: 14px; -fx-text-fill: #ecf0f1;"
+                   alignment="CENTER"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="📊 线性结构">
+                    <fx:include source="LinearStructureView.fxml" />
+                </Tab>
+                <Tab text="🌳 树形结构">
+                    <fx:include source="TreeView.fxml" />
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #34495e;">
+            <padding>
+                <Insets top="10" right="15" bottom="10" left="15"/>
+            </padding>
+            <Label text="数据结构课程设计 - JavaFX 实现"
+                   style="-fx-text-fill: #bdc3c7; -fx-font-size: 12px;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
