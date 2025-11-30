@@ -33,21 +33,6 @@
                             <Button fx:id="deleteListBtn" text="删除节点"
                                     style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;"/>
                         </HBox>
-                        <!-- 链表步骤导航 -->
-                        <HBox spacing="10" alignment="CENTER_LEFT"
-                              style="-fx-padding: 10; -fx-background-color: #d5dbdb; -fx-border-radius: 5;">
-                            <Label text="步骤导航:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                            <Button fx:id="prevListStepBtn" text="◀ 上一步"
-                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-                            <Label fx:id="listStepInfoLabel" text="步骤: 0/0"
-                                   style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                            <Button fx:id="nextListStepBtn" text="下一步 ▶"
-                                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-                            <Button fx:id="listAutoDemoBtn" text="自动演示"
-                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
-                            <Button fx:id="resetListBtn" text="重置"
-                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
-                        </HBox>
 
                         <!-- 输出区域 -->
                         <TextArea fx:id="listOutput" prefHeight="80"
@@ -140,6 +125,55 @@
                         <Pane fx:id="arrayCanvas"
                               style="-fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-background-color: white; -fx-border-radius: 5;"
                               VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+
+                <!-- 存档管理标签页 -->
+                <Tab text="💾 存档管理">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 保存新存档 -->
+                        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #d4edda; -fx-border-radius: 5;">
+                            <Label text="保存新存档" style="-fx-font-weight: bold; -fx-text-fill: #155724;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="存档名称:"/>
+                                <TextField fx:id="archiveNameField" promptText="输入存档名称" prefWidth="150"/>
+                                <Label text="描述:"/>
+                                <TextField fx:id="archiveDescriptionField" promptText="输入存档描述" prefWidth="200"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Button fx:id="saveArrayBtn" text="保存顺序表"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                                <Button fx:id="saveListBtn" text="保存链表"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                                <Button fx:id="saveStackBtn" text="保存栈"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- 加载存档 -->
+                        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #cce5ff; -fx-border-radius: 5;">
+                            <Label text="加载存档" style="-fx-font-weight: bold; -fx-text-fill: #004085;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="选择存档:"/>
+                                <ComboBox fx:id="savedFilesCombo" prefWidth="250"/>
+                                <Button fx:id="refreshSavedBtn" text="刷新列表"
+                                        style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+                                <Button fx:id="deleteSaveBtn" text="删除存档"
+                                        style="-fx-background-color: #dc3545; -fx-text-fill: white;"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Button fx:id="loadArrayBtn" text="加载为顺序表"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                                <Button fx:id="loadListBtn" text="加载为链表"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                                <Button fx:id="loadStackBtn" text="加载为栈"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                            </HBox>
+                        </VBox>
                     </VBox>
                 </Tab>
 

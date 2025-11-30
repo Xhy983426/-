@@ -3,10 +3,56 @@ package com.datastructurevisualizer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.Serializable;
+
 public class BST {
     private TreeNode root;
     private List<SearchStep> searchSteps;
 
+    // 可序列化的BST数据
+    public static class BSTData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public TreeNode.SerializableNode root;
+        public int size;
+        public int height;
+
+        public BSTData(BST bst) {
+            this.root = bst.root != null ? bst.root.toSerializable() : null;
+            this.size = bst.size();
+            this.height = bst.height();
+        }
+    }
+
+    public BST() {
+        root = null;
+        searchSteps = new ArrayList<>();
+    }
+
+    // 序列化方法
+    public BSTData getSerializableData() {
+        return new BSTData(this);
+    }
+
+    // 反序列化方法
+    public static BST fromSerializableData(BSTData data) {
+        BST bst = new BST();
+        if (data != null && data.root != null) {
+            bst.root = TreeNode.fromSerializable(data.root);
+        }
+        return bst;
+    }
+
+    // 存档管理方法
+    public TreeArchiveManager.TreeArchiveData saveToArchive(String description) {
+        return new TreeArchiveManager.TreeArchiveData("bst", this.getSerializableData(), description);
+    }
+
+    public static BST loadFromArchive(TreeArchiveManager.TreeArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof BSTData) {
+            return fromSerializableData((BSTData) archiveData.data);
+        }
+        return new BST();
+    }
     public class SearchStep {
         public TreeNode currentNode;
         public int targetValue;
@@ -35,10 +81,7 @@ public class BST {
             this.stepType = stepType;
         }
     }
-    public BST() {
-        root = null;
-        searchSteps = new ArrayList<>();
-    }
+
 
     public void insert(int value) {
         root = insertRecursive(root, value);

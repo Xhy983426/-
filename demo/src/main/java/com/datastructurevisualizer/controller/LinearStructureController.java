@@ -1,5 +1,6 @@
 package com.datastructurevisualizer.controller;
 
+import com.datastructurevisualizer.model.ArchiveManager;
 import com.datastructurevisualizer.model.ArrayList;
 import com.datastructurevisualizer.model.LinkedList;
 import com.datastructurevisualizer.model.Stack;
@@ -13,7 +14,6 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 import java.net.URL;
-
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -53,6 +53,19 @@ public class LinearStructureController implements Initializable {
     @FXML private Button arrayAutoDemoBtn;
     @FXML private Label arrayStepInfoLabel;
 
+    // 存档管理控件
+    @FXML private TextField archiveNameField;
+    @FXML private TextField archiveDescriptionField;
+    @FXML private ComboBox<String> savedFilesCombo;
+    @FXML private Button refreshSavedBtn;
+    @FXML private Button deleteSaveBtn;
+    @FXML private Button saveArrayBtn;
+    @FXML private Button loadArrayBtn;
+    @FXML private Button saveListBtn;
+    @FXML private Button loadListBtn;
+    @FXML private Button saveStackBtn;
+    @FXML private Button loadStackBtn;
+
     private LinkedList linkedList;
     private Stack stack;
     private ArrayList arrayList;
@@ -67,16 +80,24 @@ public class LinearStructureController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // 初始化视图组件
         listView = new LinearStructureView(listCanvas);
         stackView = new LinearStructureView(stackCanvas);
         arrayView = new LinearStructureView(arrayCanvas);
 
-        // 初始化顺序表步骤演示
-        currentArraySteps = new java.util.ArrayList<ArrayList.OperationStep>();
+        // 初始化数据结构
+        linkedList = new LinkedList();
+        stack = new Stack();
+        arrayList = new ArrayList();
+
+        // 初始化步骤演示
+        currentArraySteps = new java.util.ArrayList<>();
         currentArrayStepIndex = 0;
 
         setupEventHandlers();
+        setupArchiveHandlers();
         updateArrayStepNavigation();
+        refreshSavedFiles();
     }
 
     private void setupEventHandlers() {
@@ -101,7 +122,26 @@ public class LinearStructureController implements Initializable {
         arrayAutoDemoBtn.setOnAction(e -> startArrayAutoDemo());
     }
 
-    // 链表操作
+    private void setupArchiveHandlers() {
+        // 顺序表存档
+        saveArrayBtn.setOnAction(e -> saveArrayList());
+        loadArrayBtn.setOnAction(e -> loadArrayList());
+
+        // 链表存档
+        saveListBtn.setOnAction(e -> saveLinkedList());
+        loadListBtn.setOnAction(e -> loadLinkedList());
+
+        // 栈存档
+        saveStackBtn.setOnAction(e -> saveStack());
+        loadStackBtn.setOnAction(e -> loadStack());
+
+        // 通用存档操作
+        refreshSavedBtn.setOnAction(e -> refreshSavedFiles());
+        deleteSaveBtn.setOnAction(e -> deleteSaveFile());
+    }
+
+    // ========== 链表操作 ==========
+
     private void createLinkedList() {
         linkedList = new LinkedList();
         listOutput.setText("链表创建成功！");
@@ -118,7 +158,6 @@ public class LinearStructureController implements Initializable {
             listOutput.setText("在位置 " + index + " 插入节点: " + value + "\n当前链表大小: " + linkedList.getSize());
             listView.drawLinkedList(linkedList);
 
-            // 清空输入框
             listValueField.clear();
             listIndexField.clear();
         } catch (Exception e) {
@@ -138,14 +177,14 @@ public class LinearStructureController implements Initializable {
             listOutput.setText("删除位置 " + index + " 的节点\n当前链表大小: " + linkedList.getSize());
             listView.drawLinkedList(linkedList);
 
-            // 清空输入框
             listIndexField.clear();
         } catch (Exception e) {
             listOutput.setText("错误: " + e.getMessage());
         }
     }
 
-    // 栈操作
+    // ========== 栈操作 ==========
+
     private void createStack() {
         try {
             int capacity = stackCapacityField.getText().isEmpty() ? 10 : Integer.parseInt(stackCapacityField.getText());
@@ -164,7 +203,6 @@ public class LinearStructureController implements Initializable {
             stackOutput.setText("入栈: " + value + "\n当前栈大小: " + stack.size());
             stackView.drawStack(stack);
 
-            // 清空输入框
             stackValueField.clear();
         } catch (Exception e) {
             stackOutput.setText("错误: " + e.getMessage());
@@ -181,24 +219,21 @@ public class LinearStructureController implements Initializable {
         }
     }
 
-    // 顺序表操作
-    // 在创建顺序表时确保正确初始化
+    // ========== 顺序表操作 ==========
+
     private void createArrayList() {
         arrayList = new ArrayList();
         arrayOutput.setText("顺序表创建成功！");
-        // 确保绘制空数组状态
         arrayView.drawArrayList(arrayList);
         resetArraySteps();
     }
 
-    // 在插入第一个元素时确保正确显示
     private void insertArrayElement() {
         try {
             int value = Integer.parseInt(arrayValueField.getText());
             String indexText = arrayIndexField.getText();
             int index = indexText.isEmpty() ? arrayList.size() : Integer.parseInt(indexText);
 
-            // 使用带步骤的插入方法
             currentArraySteps = arrayList.insertWithSteps(index, value);
             currentArrayStepIndex = 0;
 
@@ -206,18 +241,17 @@ public class LinearStructureController implements Initializable {
                 showArrayStep(currentArrayStepIndex);
                 arrayOutput.setText("开始插入演示... 使用导航按钮查看详细步骤");
             } else {
-                // 如果没有步骤（可能是直接插入），直接绘制当前状态
                 arrayView.drawArrayList(arrayList);
                 arrayOutput.setText("插入完成！当前数组大小: " + arrayList.size());
             }
 
-            // 清空输入框
             arrayValueField.clear();
             arrayIndexField.clear();
         } catch (Exception e) {
             arrayOutput.setText("错误: " + e.getMessage());
         }
     }
+
     private void deleteArrayElement() {
         try {
             String indexText = arrayIndexField.getText();
@@ -227,7 +261,6 @@ public class LinearStructureController implements Initializable {
             }
             int index = Integer.parseInt(indexText);
 
-            // 使用带步骤的删除方法
             currentArraySteps = arrayList.deleteWithSteps(index);
             currentArrayStepIndex = 0;
 
@@ -236,14 +269,14 @@ public class LinearStructureController implements Initializable {
                 arrayOutput.setText("开始删除演示... 使用导航按钮查看详细步骤");
             }
 
-            // 清空输入框
             arrayIndexField.clear();
         } catch (Exception e) {
             arrayOutput.setText("错误: " + e.getMessage());
         }
     }
 
-    // 顺序表步骤导航方法
+    // ========== 顺序表步骤导航方法 ==========
+
     private void showArrayStep(int stepIndex) {
         if (currentArraySteps == null || currentArraySteps.isEmpty()) {
             return;
@@ -255,15 +288,9 @@ public class LinearStructureController implements Initializable {
         currentArrayStepIndex = stepIndex;
         ArrayList.OperationStep step = currentArraySteps.get(stepIndex);
 
-        // 绘制当前步骤
         arrayView.drawArrayListWithSteps(arrayList, step);
-
-        // 更新步骤导航
         updateArrayStepNavigation();
-
-        // 更新输出信息
-        arrayOutput.setText("步骤 " + (stepIndex + 1) + "/" + currentArraySteps.size() +
-                "\n" + step.description);
+        arrayOutput.setText("步骤 " + (stepIndex + 1) + "/" + currentArraySteps.size() + "\n" + step.description);
     }
 
     private void previousArrayStep() {
@@ -291,28 +318,23 @@ public class LinearStructureController implements Initializable {
         currentArrayStepIndex = 0;
         arrayAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentArraySteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 1.0), // 每秒一个步骤
+                    Duration.seconds(i * 1.0),
                     e -> showArrayStep(stepIndex)
             );
             arrayAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentArraySteps.size() * 1.0 + 1),
-                e -> {
-                    arrayOutput.setText("自动演示完成！使用导航按钮重新查看步骤");
-                }
+                e -> arrayOutput.setText("自动演示完成！使用导航按钮重新查看步骤")
         );
         arrayAnimation.getKeyFrames().add(finalFrame);
 
         arrayAnimation.setCycleCount(1);
         arrayAnimation.play();
-
         arrayOutput.setText("自动演示中...");
     }
 
@@ -339,4 +361,160 @@ public class LinearStructureController implements Initializable {
         }
     }
 
+    // ========== 存档管理方法 ==========
+
+    private void refreshSavedFiles() {
+        List<String> savedFiles = ArchiveManager.getSavedFiles();
+        savedFilesCombo.getItems().setAll(savedFiles);
+        if (!savedFiles.isEmpty()) {
+            savedFilesCombo.setValue(savedFiles.get(0));
+        }
+    }
+
+    private void deleteSaveFile() {
+        String filename = savedFilesCombo.getValue();
+        if (filename != null && !filename.isEmpty()) {
+            if (ArchiveManager.deleteSaveFile(filename)) {
+                refreshSavedFiles();
+                showAlert("成功", "文件删除成功: " + filename);
+            } else {
+                showAlert("错误", "文件删除失败: " + filename);
+            }
+        }
+    }
+
+    private void saveArrayList() {
+        if (arrayList == null) {
+            showAlert("错误", "请先创建顺序表");
+            return;
+        }
+
+        String filename = archiveNameField.getText();
+        String description = archiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = arrayList.saveToArchive(description);
+        if (ArchiveManager.saveLinearStructure(archiveData, filename)) {
+            showAlert("成功", "顺序表保存成功: " + filename);
+            refreshSavedFiles();
+            archiveNameField.clear();
+            archiveDescriptionField.clear();
+        } else {
+            showAlert("错误", "顺序表保存失败");
+        }
+    }
+
+    private void loadArrayList() {
+        String filename = savedFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = ArchiveManager.loadLinearStructure(filename);
+        if (archiveData != null && "array".equals(archiveData.structureType)) {
+            arrayList = ArrayList.loadFromArchive(archiveData);
+            arrayView.drawArrayList(arrayList);
+            arrayOutput.setText("顺序表加载成功: " + archiveData.description);
+            resetArraySteps();
+        } else {
+            showAlert("错误", "文件格式不正确或不是顺序表存档");
+        }
+    }
+
+    private void saveLinkedList() {
+        if (linkedList == null) {
+            showAlert("错误", "请先创建链表");
+            return;
+        }
+
+        String filename = archiveNameField.getText();
+        String description = archiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = linkedList.saveToArchive(description);
+        if (ArchiveManager.saveLinearStructure(archiveData, filename)) {
+            showAlert("成功", "链表保存成功: " + filename);
+            refreshSavedFiles();
+            archiveNameField.clear();
+            archiveDescriptionField.clear();
+        } else {
+            showAlert("错误", "链表保存失败");
+        }
+    }
+
+    private void loadLinkedList() {
+        String filename = savedFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = ArchiveManager.loadLinearStructure(filename);
+        if (archiveData != null && "linkedlist".equals(archiveData.structureType)) {
+            linkedList = LinkedList.loadFromArchive(archiveData);
+            listView.drawLinkedList(linkedList);
+            listOutput.setText("链表加载成功: " + archiveData.description);
+        } else {
+            showAlert("错误", "文件格式不正确或不是链表存档");
+        }
+    }
+
+    private void saveStack() {
+        if (stack == null) {
+            showAlert("错误", "请先创建栈");
+            return;
+        }
+
+        String filename = archiveNameField.getText();
+        String description = archiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = stack.saveToArchive(description);
+        if (ArchiveManager.saveLinearStructure(archiveData, filename)) {
+            showAlert("成功", "栈保存成功: " + filename);
+            refreshSavedFiles();
+            archiveNameField.clear();
+            archiveDescriptionField.clear();
+        } else {
+            showAlert("错误", "栈保存失败");
+        }
+    }
+
+    private void loadStack() {
+        String filename = savedFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        ArchiveManager.ArchiveData archiveData = ArchiveManager.loadLinearStructure(filename);
+        if (archiveData != null && "stack".equals(archiveData.structureType)) {
+            stack = Stack.loadFromArchive(archiveData);
+            stackView.drawStack(stack);
+            stackOutput.setText("栈加载成功: " + archiveData.description);
+        } else {
+            showAlert("错误", "文件格式不正确或不是栈存档");
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

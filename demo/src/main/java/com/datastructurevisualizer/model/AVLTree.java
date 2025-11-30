@@ -1,12 +1,27 @@
 package com.datastructurevisualizer.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AVLTree {
     private AVLNode root;
     private List<AVLStep> operationSteps;
-    private AVLNode currentRoot; // 当前树状态
+    private AVLNode currentRoot;
+
+    // 可序列化的AVL树数据
+    public static class AVLTreeData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public AVLNode.SerializableNode root;
+        public int size;
+        public int height;
+
+        public AVLTreeData(AVLTree tree) {
+            this.root = tree.root != null ? tree.root.toSerializable() : null;
+            this.size = tree.size();
+            this.height = tree.height();
+        }
+    }
 
     public class AVLNode {
         public int value;
@@ -14,9 +29,30 @@ public class AVLTree {
         public AVLNode left;
         public AVLNode right;
 
+        // 可序列化的AVL节点
+        public static class SerializableNode implements Serializable {
+            private static final long serialVersionUID = 1L;
+            public int value;
+            public int height;
+            public SerializableNode left;
+            public SerializableNode right;
+
+            public SerializableNode(AVLNode node) {
+                if (node != null) {
+                    this.value = node.value;
+                    this.height = node.height;
+                    this.left = node.left != null ? new SerializableNode(node.left) : null;
+                    this.right = node.right != null ? new SerializableNode(node.right) : null;
+                }
+            }
+        }
+
         public AVLNode(int value) {
             this.value = value;
             this.height = 1;
+        }
+        public SerializableNode toSerializable() {
+            return new SerializableNode(this);
         }
 
         @Override
@@ -49,11 +85,46 @@ public class AVLTree {
         }
     }
 
+    private AVLNode fromSerializable(AVLNode.SerializableNode serialNode) {
+        if (serialNode == null) return null;
+
+        AVLNode node = new AVLNode(serialNode.value);
+        node.height = serialNode.height;
+        node.left = fromSerializable(serialNode.left);
+        node.right = fromSerializable(serialNode.right);
+        return node;
+    }
+
     public AVLTree() {
         root = null;
         currentRoot = null;
         operationSteps = new ArrayList<>();
     }
+    public AVLTreeData getSerializableData() {
+        return new AVLTreeData(this);
+    }
+
+    // 反序列化方法
+    public static AVLTree fromSerializableData(AVLTreeData data) {
+        AVLTree tree = new AVLTree();
+        if (data != null && data.root != null) {
+            tree.root = tree.fromSerializable(data.root);
+        }
+        return tree;
+    }
+
+    // 存档管理方法
+    public TreeArchiveManager.TreeArchiveData saveToArchive(String description) {
+        return new TreeArchiveManager.TreeArchiveData("avl", this.getSerializableData(), description);
+    }
+
+    public static AVLTree loadFromArchive(TreeArchiveManager.TreeArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof AVLTreeData) {
+            return fromSerializableData((AVLTreeData) archiveData.data);
+        }
+        return new AVLTree();
+    }
+
 
     // 带步骤演示的插入方法
     public List<AVLStep> insertWithSteps(int value) {

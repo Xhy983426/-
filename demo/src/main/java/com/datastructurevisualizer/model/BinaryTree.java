@@ -1,5 +1,6 @@
 package com.datastructurevisualizer.model;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.ArrayList;
@@ -8,6 +9,51 @@ import java.util.List;
 public class BinaryTree {
     private TreeNode root;
     private List<TraversalStep> traversalSteps;
+
+    // 可序列化的二叉树数据 - 只保存树结构，不保存步骤数据
+    public static class BinaryTreeData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public TreeNode.SerializableNode root;
+        public int size;
+        public int height;
+
+        public BinaryTreeData(BinaryTree tree) {
+            this.root = tree.root != null ? tree.root.toSerializable() : null;
+            this.size = tree.getSize();
+            this.height = tree.getHeight();
+        }
+    }
+
+    public BinaryTree() {
+        root = null;
+        traversalSteps = new ArrayList<>();
+    }
+
+    // 序列化方法
+    public BinaryTreeData getSerializableData() {
+        return new BinaryTreeData(this);
+    }
+
+    // 反序列化方法
+    public static BinaryTree fromSerializableData(BinaryTreeData data) {
+        BinaryTree tree = new BinaryTree();
+        if (data != null && data.root != null) {
+            tree.root = TreeNode.fromSerializable(data.root);
+        }
+        return tree;
+    }
+
+    // 存档管理方法
+    public TreeArchiveManager.TreeArchiveData saveToArchive(String description) {
+        return new TreeArchiveManager.TreeArchiveData("binary", this.getSerializableData(), description);
+    }
+
+    public static BinaryTree loadFromArchive(TreeArchiveManager.TreeArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof BinaryTreeData) {
+            return fromSerializableData((BinaryTreeData) archiveData.data);
+        }
+        return new BinaryTree();
+    }
 
     public class TraversalStep {
         public String traversalType;
@@ -25,10 +71,6 @@ public class BinaryTree {
         }
     }
 
-    public BinaryTree() {
-        root = null;
-        traversalSteps = new ArrayList<>();
-    }
 
     // 重置所有节点的访问状态
     private void resetVisited(TreeNode node) {

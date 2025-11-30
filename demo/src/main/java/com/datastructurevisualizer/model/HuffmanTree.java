@@ -1,12 +1,82 @@
 package com.datastructurevisualizer.model;
 
+import java.io.Serializable;
 import java.util.*;
-import java.util.ArrayList;
 
 public class HuffmanTree {
     private HuffmanNode root;
     private List<HuffmanStep> operationSteps;
     private List<HuffmanNode> allNodes;
+
+    // 简化的可序列化哈夫曼树数据
+    public static class HuffmanTreeData implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public Map<Character, Integer> frequencyMap;
+        public Map<Character, String> huffmanCodes;
+
+        public HuffmanTreeData(HuffmanTree tree) {
+            this.frequencyMap = new HashMap<>();
+            this.huffmanCodes = new HashMap<>();
+
+            // 从操作步骤中提取频率和编码信息
+            if (tree.operationSteps != null) {
+                for (HuffmanStep step : tree.operationSteps) {
+                    if (step.frequencyMap != null) {
+                        this.frequencyMap.putAll(step.frequencyMap);
+                    }
+                    if (step.huffmanCodes != null) {
+                        this.huffmanCodes.putAll(step.huffmanCodes);
+                    }
+                }
+            }
+        }
+    }
+
+    public HuffmanTree() {
+        root = null;
+        operationSteps = new java.util.ArrayList<HuffmanStep>();
+        allNodes = new java.util.ArrayList<HuffmanNode>();
+    }
+
+    // 序列化方法
+    public HuffmanTreeData getSerializableData() {
+        return new HuffmanTreeData(this);
+    }
+
+    // 反序列化方法 - 从数据重建哈夫曼树
+    public static HuffmanTree fromSerializableData(HuffmanTreeData data) {
+        HuffmanTree tree = new HuffmanTree();
+        if (data != null && data.frequencyMap != null && !data.frequencyMap.isEmpty()) {
+            // 重建哈夫曼树
+            String simulatedText = generateTextFromFrequency(data.frequencyMap);
+            tree.buildTreeWithSteps(simulatedText);
+        }
+        return tree;
+    }
+
+    // 从频率映射生成模拟文本
+    private static String generateTextFromFrequency(Map<Character, Integer> frequencyMap) {
+        StringBuilder text = new StringBuilder();
+        for (Map.Entry<Character, Integer> entry : frequencyMap.entrySet()) {
+            for (int i = 0; i < entry.getValue(); i++) {
+                text.append(entry.getKey());
+            }
+        }
+        return text.toString();
+    }
+
+    // 存档管理方法
+    public TreeArchiveManager.TreeArchiveData saveToArchive(String description) {
+        return new TreeArchiveManager.TreeArchiveData("huffman", this.getSerializableData(), description);
+    }
+
+    public static HuffmanTree loadFromArchive(TreeArchiveManager.TreeArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof HuffmanTreeData) {
+            return fromSerializableData((HuffmanTreeData) archiveData.data);
+        }
+        return new HuffmanTree();
+    }
+
 
     public class HuffmanNode implements Comparable<HuffmanNode> {
         public char character;
@@ -62,15 +132,11 @@ public class HuffmanTree {
         }
     }
 
-    public HuffmanTree() {
-        root = null;
-        operationSteps = new java.util.ArrayList<HuffmanStep>();
-    }
 
     // 带步骤演示的构建方法
     public List<HuffmanStep> buildTreeWithSteps(String text) {
         operationSteps.clear();
-        allNodes = new ArrayList<HuffmanNode>();
+        allNodes = new java.util.ArrayList<HuffmanNode>();
 
         if (text == null || text.isEmpty()) {
             throw new IllegalArgumentException("Text cannot be null or empty");
@@ -98,7 +164,7 @@ public class HuffmanTree {
 
         // 步骤3: 逐步构建哈夫曼树
         int stepCount = 1;
-        List<HuffmanNode> currentForest = new ArrayList<HuffmanNode>(pq);
+        List<HuffmanNode> currentForest = new java.util.ArrayList<HuffmanNode>(pq);
 
         while (pq.size() > 1) {
             HuffmanNode left = pq.poll();
@@ -108,7 +174,7 @@ public class HuffmanTree {
             HuffmanStep forestStep = new HuffmanStep("forest",
                     "步骤 " + stepCount + ": 当前森林状态 - " + getForestDescription(currentForest));
             forestStep.currentQueue = new PriorityQueue<HuffmanNode>(pq);
-            forestStep.combinedNodes = new ArrayList<HuffmanNode>(currentForest);
+            forestStep.combinedNodes = new java.util.ArrayList<HuffmanNode>(currentForest);
             operationSteps.add(forestStep);
 
             HuffmanStep combineStep = new HuffmanStep("combine",
@@ -166,7 +232,7 @@ public class HuffmanTree {
                 originalBits, compressedBits, compressionRatio);
         operationSteps.add(resultStep);
 
-        return new ArrayList<HuffmanStep>(operationSteps);
+        return new java.util.ArrayList<HuffmanStep>(operationSteps);
     }
 
     private void generateCodesWithSteps(HuffmanNode node, String code,

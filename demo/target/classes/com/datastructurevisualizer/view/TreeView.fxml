@@ -247,6 +247,63 @@
                               VBox.vgrow="ALWAYS"/>
                     </VBox>
                 </Tab>
+                <!-- 在 TreeView.fxml 的 TabPane 中添加存档管理标签页 -->
+                <Tab text="💾 树存档管理">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <!-- 保存新存档 -->
+                        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #d4edda; -fx-border-radius: 5;">
+                            <Label text="保存树形结构" style="-fx-font-weight: bold; -fx-text-fill: #155724;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="存档名称:"/>
+                                <TextField fx:id="treeArchiveNameField" promptText="输入存档名称" prefWidth="150"/>
+                                <Label text="描述:"/>
+                                <TextField fx:id="treeArchiveDescriptionField" promptText="输入存档描述" prefWidth="200"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Button fx:id="saveBinaryTreeBtn" text="保存二叉树"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                                <Button fx:id="saveBstBtn" text="保存BST"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                                <Button fx:id="saveHuffmanBtn" text="保存哈夫曼树"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                                <Button fx:id="saveAvlBtn" text="保存AVL树"
+                                        style="-fx-background-color: #17a2b8; -fx-text-fill: white;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- 加载存档 -->
+                        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #cce5ff; -fx-border-radius: 5;">
+                            <Label text="加载树形结构" style="-fx-font-weight: bold; -fx-text-fill: #004085;"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="选择存档:"/>
+                                <ComboBox fx:id="savedTreeFilesCombo" prefWidth="250"/>
+                                <Button fx:id="refreshTreeSavedBtn" text="刷新列表"
+                                        style="-fx-background-color: #6c757d; -fx-text-fill: white;"/>
+                                <Button fx:id="deleteTreeSaveBtn" text="删除存档"
+                                        style="-fx-background-color: #dc3545; -fx-text-fill: white;"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Button fx:id="loadBinaryTreeBtn" text="加载为二叉树"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                                <Button fx:id="loadBstBtn" text="加载为BST"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                                <Button fx:id="loadHuffmanBtn" text="加载为哈夫曼树"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                                <Button fx:id="loadAvlBtn" text="加载为AVL树"
+                                        style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- 存档信息显示 -->
+                        <TextArea fx:id="treeArchiveInfoArea" prefHeight="150"
+                                  promptText="树形结构存档信息将显示在这里..."
+                                  style="-fx-font-family: 'Consolas'; -fx-font-size: 12px;"/>
+                    </VBox>
+                </Tab>
 
             </tabs>
         </TabPane>

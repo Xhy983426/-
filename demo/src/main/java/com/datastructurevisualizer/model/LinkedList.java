@@ -73,7 +73,74 @@ public class LinkedList {
         operationSteps = new ArrayList<>();
     }
 
+    public static class SerializableNode implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public int data;
+        public SerializableNode next;
 
+        public SerializableNode(Node node) {
+            this.data = node.data;
+            this.next = null;
+        }
+    }
+
+    // 可序列化的链表版本
+    public static class LinkedListSerializable implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public SerializableNode head;
+        public int size;
+
+        public LinkedListSerializable(LinkedList list) {
+            this.size = list.size;
+            if (list.head != null) {
+                this.head = convertToSerializable(list.head);
+            }
+        }
+
+        private SerializableNode convertToSerializable(Node node) {
+            if (node == null) return null;
+
+            SerializableNode serialNode = new SerializableNode(node);
+            serialNode.next = convertToSerializable(node.next);
+            return serialNode;
+        }
+    }
+
+    // 序列化方法
+    public LinkedListSerializable toSerializable() {
+        return new LinkedListSerializable(this);
+    }
+
+    // 反序列化方法
+    public static LinkedList fromSerializable(LinkedListSerializable serializable) {
+        LinkedList list = new LinkedList();
+        if (serializable != null) {
+            list.size = serializable.size;
+            list.head = convertFromSerializable(serializable.head);
+        }
+        return list;
+    }
+
+    private static Node convertFromSerializable(SerializableNode serialNode) {
+        if (serialNode == null) return null;
+
+        LinkedList list = new LinkedList(); // 创建临时实例来创建Node
+        Node node = list.new Node(serialNode.data); // 使用临时实例创建内部类实例
+        node.next = convertFromSerializable(serialNode.next);
+        return node;
+    }
+
+    // 存档管理方法
+    public ArchiveManager.ArchiveData saveToArchive(String description) {
+        return new ArchiveManager.ArchiveData("linkedlist", this.toSerializable(), description);
+    }
+
+    public static LinkedList loadFromArchive(ArchiveManager.ArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof LinkedListSerializable) {
+            return fromSerializable((LinkedListSerializable) archiveData.data);
+        }
+        return new LinkedList();
+    }
 
 
 

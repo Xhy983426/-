@@ -1,10 +1,6 @@
 package com.datastructurevisualizer.controller;
 
-import com.datastructurevisualizer.model.AVLTree;
-import com.datastructurevisualizer.model.BST;
-import com.datastructurevisualizer.model.BinaryTree;
-import com.datastructurevisualizer.model.HuffmanTree;
-import com.datastructurevisualizer.model.TreeNode;
+import com.datastructurevisualizer.model.*;
 import com.datastructurevisualizer.view.components.TreeVisualizer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -94,7 +90,7 @@ public class TreeController implements Initializable {
     @FXML
     private Button deleteAutoDemoBtn;
     @FXML
-    private Button executeDeleteBtn;  // 新增的执行删除按钮
+    private Button executeDeleteBtn;
     @FXML
     private Button resetDeleteBtn;
     @FXML
@@ -109,8 +105,6 @@ public class TreeController implements Initializable {
     private TextArea huffmanOutput;
     @FXML
     private Button clearHuffmanBtn;
-
-    // 哈夫曼树步骤导航控件
     @FXML
     private Button prevHuffmanStepBtn;
     @FXML
@@ -135,8 +129,6 @@ public class TreeController implements Initializable {
     private Button clearAvlBtn;
     @FXML
     private Label avlInfoLabel;
-
-    // AVL树步骤导航控件
     @FXML
     private Button prevAvlStepBtn;
     @FXML
@@ -147,6 +139,34 @@ public class TreeController implements Initializable {
     private Label avlStepInfoLabel;
     @FXML
     private Button resetAvlBtn;
+
+    // 树存档管理控件
+    @FXML
+    private TextField treeArchiveNameField;
+    @FXML
+    private TextField treeArchiveDescriptionField;
+    @FXML
+    private ComboBox<String> savedTreeFilesCombo;
+    @FXML
+    private Button refreshTreeSavedBtn;
+    @FXML
+    private Button deleteTreeSaveBtn;
+    @FXML
+    private Button saveBinaryTreeBtn;
+    @FXML
+    private Button loadBinaryTreeBtn;
+    @FXML
+    private Button saveBstBtn;
+    @FXML
+    private Button loadBstBtn;
+    @FXML
+    private Button saveHuffmanBtn;
+    @FXML
+    private Button loadHuffmanBtn;
+    @FXML
+    private Button saveAvlBtn;
+    @FXML
+    private Button loadAvlBtn;
 
     // ========== 模型和视图对象 ==========
     private BinaryTree binaryTree;
@@ -199,11 +219,36 @@ public class TreeController implements Initializable {
 
         setupComboBoxes();
         setupEventHandlers();
+        setupTreeArchiveHandlers();
         initializeStepDemos();
         setupTraversalEventHandlers();
         updateTraversalStepNavigation();
         updateTreeInfo();
+        refreshTreeSavedFiles();
     }
+
+    private void setupTreeArchiveHandlers() {
+        // 二叉树存档
+        saveBinaryTreeBtn.setOnAction(e -> saveBinaryTree());
+        loadBinaryTreeBtn.setOnAction(e -> loadBinaryTree());
+
+        // BST存档
+        saveBstBtn.setOnAction(e -> saveBST());
+        loadBstBtn.setOnAction(e -> loadBST());
+
+        // 哈夫曼树存档
+        saveHuffmanBtn.setOnAction(e -> saveHuffmanTree());
+        loadHuffmanBtn.setOnAction(e -> loadHuffmanTree());
+
+        // AVL树存档
+        saveAvlBtn.setOnAction(e -> saveAVLTree());
+        loadAvlBtn.setOnAction(e -> loadAVLTree());
+
+        // 通用存档操作
+        refreshTreeSavedBtn.setOnAction(e -> refreshTreeSavedFiles());
+        deleteTreeSaveBtn.setOnAction(e -> deleteTreeSaveFile());
+    }
+
     private void setupTraversalEventHandlers() {
         // 遍历演示事件处理
         traversalStepPrevBtn.setOnAction(e -> previousTraversalStep());
@@ -239,13 +284,14 @@ public class TreeController implements Initializable {
         nextStepBtn.setOnAction(e -> nextStep());
         autoDemoBtn.setOnAction(e -> startAutoDemo());
         resetSearchBtn.setOnAction(e -> resetSearch());
-        // BST删除演示事件
+
         // BST删除演示事件
         prevDeleteStepBtn.setOnAction(e -> previousDeleteStep());
         nextDeleteStepBtn.setOnAction(e -> nextDeleteStep());
         deleteAutoDemoBtn.setOnAction(e -> startDeleteAutoDemo());
-        executeDeleteBtn.setOnAction(e -> performActualDeletion());  // 执行实际删除
+        executeDeleteBtn.setOnAction(e -> performActualDeletion());
         resetDeleteBtn.setOnAction(e -> resetDeleteSteps());
+
         // 哈夫曼树事件
         buildHuffmanBtn.setOnAction(e -> buildHuffmanTree());
         clearHuffmanBtn.setOnAction(e -> clearHuffmanTree());
@@ -367,8 +413,6 @@ public class TreeController implements Initializable {
         currentDeleteSteps = new ArrayList<>();
         currentDeleteStepIndex = 0;
 
-
-
         // 哈夫曼树步骤演示初始化
         currentHuffmanSteps = new ArrayList<>();
         currentHuffmanStepIndex = 0;
@@ -382,33 +426,9 @@ public class TreeController implements Initializable {
         updateAvlStepNavigation();
         updateDeleteStepNavigation();
     }
-    // 修复 resetTraversalSteps 方法
-    private void resetTraversalSteps() {
-        System.out.println("重置遍历演示");
-
-        if (traversalAnimation != null) {
-            traversalAnimation.stop();
-        }
-
-        // 重置遍历状态
-        currentTraversalSteps.clear();
-        currentTraversalStepIndex = 0;
-
-        // 重置所有节点的访问状态
-        resetTreeVisitedState();
-
-        // 强制重新绘制原始树
-        if (binaryTree != null) {
-            binaryTreeVisualizer.drawBinaryTree(binaryTree.getRoot(), "binary");
-        }
-
-        updateTraversalStepNavigation();
-        binaryTreeOutput.setText("遍历演示已重置");
-    }
 
     // ========== 二叉树操作 ==========
 
-    // 在 TreeController.java 中检查 insertBinaryTree 方法
     private void insertBinaryTree() {
         try {
             int value = Integer.parseInt(binaryTreeValueField.getText());
@@ -430,11 +450,7 @@ public class TreeController implements Initializable {
             }
 
             binaryTreeOutput.setText("插入节点: " + value + " (方式: " + insertMethod + ")");
-
-            // 关键：确保调用了绘制方法
             binaryTreeVisualizer.drawBinaryTree(binaryTree.getRoot(), "binary");
-
-            // 清空输入框
             binaryTreeValueField.clear();
             updateTreeInfo();
 
@@ -443,23 +459,15 @@ public class TreeController implements Initializable {
         }
     }
 
-    // 修改遍历方法，支持步骤演示
     private void traverseTree() {
-        System.out.println("=== 开始遍历操作 ===");
-
         if (binaryTree == null || binaryTree.isEmpty()) {
             binaryTreeOutput.setText("错误: 二叉树为空");
-            System.out.println("二叉树为空");
             return;
         }
 
         String traversalType = traversalCombo.getValue();
-        System.out.println("选择的遍历方式: " + traversalType);
-
-        // 重置所有节点的访问状态，确保从干净状态开始
         resetTreeVisitedState();
 
-        // 使用带步骤的遍历方法
         List<BinaryTree.TraversalStep> steps = null;
         switch (traversalType) {
             case "前序遍历":
@@ -479,23 +487,15 @@ public class TreeController implements Initializable {
         if (steps != null && !steps.isEmpty()) {
             currentTraversalSteps = steps;
             currentTraversalStepIndex = 0;
-
-            System.out.println("生成步骤数: " + currentTraversalSteps.size());
-
-            // 显示第一步
             showTraversalStep(currentTraversalStepIndex);
             binaryTreeOutput.setText("开始" + traversalType + "演示...\n使用导航按钮查看详细步骤");
         } else {
-            // 如果没有步骤，使用简单遍历
             String result = getTraversalResult(traversalType);
             binaryTreeOutput.setText(traversalType + ":\n" + result);
-
-            // 确保树仍然显示
             binaryTreeVisualizer.drawBinaryTree(binaryTree.getRoot(), "binary");
         }
-
-        System.out.println("=== 遍历操作完成 ===");
     }
+
     private String getTraversalResult(String traversalType) {
         switch (traversalType) {
             case "前序遍历":
@@ -510,31 +510,22 @@ public class TreeController implements Initializable {
                 return "";
         }
     }
-    // 在 TreeController.java 中添加缺失的方法
+
+    private void resetTreeVisitedState() {
+        if (binaryTree != null && binaryTree.getRoot() != null) {
+            resetAllNodesVisited(binaryTree.getRoot());
+        }
+    }
+
     private void resetAllNodesVisited(TreeNode node) {
         if (node == null) return;
-
-        // 重置当前节点的访问状态
         node.setVisited(false);
-
-        // 递归重置左右子树
         resetAllNodesVisited(node.getLeft());
         resetAllNodesVisited(node.getRight());
     }
 
-    // 同时添加一个工具方法来重置整个树的访问状态
-    private void resetTreeVisitedState() {
-        if (binaryTree != null && binaryTree.getRoot() != null) {
-            resetAllNodesVisited(binaryTree.getRoot());
-            System.out.println("已重置所有节点的访问状态");
-        }
-    }
-    // 遍历步骤导航方法
     private void showTraversalStep(int stepIndex) {
-        System.out.println("\n*** 显示遍历步骤 " + (stepIndex + 1) + " ***");
-
         if (currentTraversalSteps == null || currentTraversalSteps.isEmpty()) {
-            System.out.println("错误: 没有可显示的步骤");
             binaryTreeOutput.setText("错误: 没有遍历步骤数据");
             return;
         }
@@ -545,36 +536,9 @@ public class TreeController implements Initializable {
         currentTraversalStepIndex = stepIndex;
         BinaryTree.TraversalStep step = currentTraversalSteps.get(stepIndex);
 
-        System.out.println("步骤信息:");
-        System.out.println("  - 描述: " + step.description);
-        System.out.println("  - 当前节点: " + (step.currentNode != null ? step.currentNode.getValue() : "null"));
-        System.out.println("  - 已访问节点数: " + step.visitedNodes.size());
-        System.out.println("  - 已访问节点: " + step.visitedNodes);
-        System.out.println("  - 当前路径: " + step.currentPath);
-
-        // 确保有有效的树根节点
-        if (binaryTree == null || binaryTree.getRoot() == null) {
-            System.out.println("错误: 二叉树为空");
-            binaryTreeOutput.setText("错误: 二叉树为空");
-            return;
-        }
-
-        TreeNode root = binaryTree.getRoot();
-        System.out.println("传递给绘制器的根节点: " + root.getValue());
-
-        // 绘制当前步骤
-        try {
-            binaryTreeVisualizer.drawTraversalStep(root, step, stepIndex, currentTraversalSteps.size());
-            System.out.println("绘制调用完成");
-        } catch (Exception e) {
-            System.out.println("绘制过程中出现错误: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        // 更新步骤导航
+        binaryTreeVisualizer.drawTraversalStep(binaryTree.getRoot(), step, stepIndex, currentTraversalSteps.size());
         updateTraversalStepNavigation();
 
-        // 更新输出信息
         String output = "步骤 " + (stepIndex + 1) + "/" + currentTraversalSteps.size() +
                 "\n" + step.description;
 
@@ -583,11 +547,9 @@ public class TreeController implements Initializable {
         }
 
         output += "\n已访问节点: " + step.visitedNodes;
-
         binaryTreeOutput.setText(output);
-
-        System.out.println("*** 步骤显示完成 ***\n");
     }
+
     private void previousTraversalStep() {
         if (currentTraversalStepIndex > 0) {
             showTraversalStep(currentTraversalStepIndex - 1);
@@ -613,21 +575,18 @@ public class TreeController implements Initializable {
         currentTraversalStepIndex = 0;
         traversalAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentTraversalSteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 1.5), // 每1.5秒一个步骤
+                    Duration.seconds(i * 1.5),
                     e -> showTraversalStep(stepIndex)
             );
             traversalAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟和恢复
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentTraversalSteps.size() * 1.5 + 1),
                 e -> {
-                    // 自动演示完成后重置树状态
                     resetTraversalSteps();
                     binaryTreeOutput.setText("自动演示完成！树状态已恢复");
                 }
@@ -636,10 +595,25 @@ public class TreeController implements Initializable {
 
         traversalAnimation.setCycleCount(1);
         traversalAnimation.play();
-
         binaryTreeOutput.setText("自动演示中...\n演示完成后树状态将自动恢复");
     }
 
+    private void resetTraversalSteps() {
+        if (traversalAnimation != null) {
+            traversalAnimation.stop();
+        }
+
+        currentTraversalSteps.clear();
+        currentTraversalStepIndex = 0;
+        resetTreeVisitedState();
+
+        if (binaryTree != null) {
+            binaryTreeVisualizer.drawBinaryTree(binaryTree.getRoot(), "binary");
+        }
+
+        updateTraversalStepNavigation();
+        binaryTreeOutput.setText("遍历演示已重置");
+    }
 
     private void updateTraversalStepNavigation() {
         if (currentTraversalSteps == null || currentTraversalSteps.isEmpty()) {
@@ -656,7 +630,6 @@ public class TreeController implements Initializable {
             resetTraversalBtn.setDisable(false);
         }
     }
-
 
     private void clearBinaryTree() {
         binaryTree = new BinaryTree();
@@ -676,11 +649,9 @@ public class TreeController implements Initializable {
             bst.insert(value);
             bstOutput.setText("插入BST节点: " + value);
             bstVisualizer.drawBinaryTree(bst.getRoot(), "bst");
-
-            // 清空输入框
             bstValueField.clear();
             updateTreeInfo();
-            resetSearch(); // 插入新节点后重置搜索状态
+            resetSearch();
 
         } catch (Exception e) {
             bstOutput.setText("错误: " + e.getMessage());
@@ -695,7 +666,6 @@ public class TreeController implements Initializable {
                 return;
             }
 
-            // 获取搜索步骤
             currentSearchSteps = bst.searchWithSteps(value);
             currentStepIndex = 0;
 
@@ -704,10 +674,8 @@ public class TreeController implements Initializable {
                 return;
             }
 
-            // 显示第一步
             showSearchStep(currentStepIndex);
 
-            // 更新输出信息
             BST.SearchStep finalStep = currentSearchSteps.get(currentSearchSteps.size() - 1);
             String result = finalStep.found ?
                     "✓ 找到节点: " + value :
@@ -720,8 +688,6 @@ public class TreeController implements Initializable {
             bstOutput.setText("错误: " + e.getMessage());
         }
     }
-
-
 
     private void clearBST() {
         bst = new BST();
@@ -744,13 +710,8 @@ public class TreeController implements Initializable {
         currentStepIndex = stepIndex;
         BST.SearchStep step = currentSearchSteps.get(stepIndex);
 
-        // 绘制当前步骤
         bstVisualizer.drawSearchStep(bst.getRoot(), step, stepIndex, currentSearchSteps.size());
-
-        // 更新步骤导航
         updateStepNavigation();
-
-        // 请求焦点以便接收键盘事件
         bstCanvas.requestFocus();
     }
 
@@ -779,28 +740,23 @@ public class TreeController implements Initializable {
         currentStepIndex = 0;
         searchAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentSearchSteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 1.5), // 每1.5秒一个步骤
+                    Duration.seconds(i * 1.5),
                     e -> showSearchStep(stepIndex)
             );
             searchAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentSearchSteps.size() * 1.5 + 1),
-                e -> {
-                    bstOutput.setText("自动演示完成\n使用左右箭头键重新查看步骤");
-                }
+                e -> bstOutput.setText("自动演示完成\n使用左右箭头键重新查看步骤")
         );
         searchAnimation.getKeyFrames().add(finalFrame);
 
         searchAnimation.setCycleCount(1);
         searchAnimation.play();
-
         bstOutput.setText("自动演示中...\n按空格键停止演示");
     }
 
@@ -830,24 +786,8 @@ public class TreeController implements Initializable {
         }
     }
 
-    // 添加删除步骤导航更新方法
-    private void updateDeleteStepNavigation() {
-        if (currentDeleteSteps == null || currentDeleteSteps.isEmpty()) {
-            prevDeleteStepBtn.setDisable(true);
-            nextDeleteStepBtn.setDisable(true);
-            deleteAutoDemoBtn.setDisable(true);
-            resetDeleteBtn.setDisable(true);
-            deleteStepInfoLabel.setText("步骤: 0/0");
-        } else {
-            deleteStepInfoLabel.setText("步骤: " + (currentDeleteStepIndex + 1) + "/" + currentDeleteSteps.size());
-            prevDeleteStepBtn.setDisable(currentDeleteStepIndex == 0);
-            nextDeleteStepBtn.setDisable(currentDeleteStepIndex == currentDeleteSteps.size() - 1);
-            deleteAutoDemoBtn.setDisable(false);
-            resetDeleteBtn.setDisable(false);
-        }
-    }
+    // ========== BST删除操作 ==========
 
-    // 修改删除BST节点方法，使用步骤演示
     private void deleteBST() {
         try {
             int value = Integer.parseInt(bstValueField.getText());
@@ -856,7 +796,6 @@ public class TreeController implements Initializable {
                 return;
             }
 
-            // 使用只读的步骤演示方法（不修改树结构）
             currentDeleteSteps = bst.deleteWithSteps(value);
             currentDeleteStepIndex = 0;
 
@@ -865,7 +804,6 @@ public class TreeController implements Initializable {
                 bstOutput.setText("开始删除步骤演示...\n当前仅展示步骤，树结构未被修改");
             }
 
-            // 清空输入框
             bstValueField.clear();
 
         } catch (Exception e) {
@@ -873,7 +811,6 @@ public class TreeController implements Initializable {
         }
     }
 
-    // 在演示完成后实际执行删除
     private void performActualDeletion() {
         try {
             int value = Integer.parseInt(bstValueField.getText());
@@ -883,7 +820,6 @@ public class TreeController implements Initializable {
                 updateTreeInfo();
                 bstOutput.setText("✅ 删除操作已实际执行\n节点 " + value + " 已被删除");
 
-                // 重置步骤演示
                 currentDeleteSteps.clear();
                 currentDeleteStepIndex = 0;
                 updateDeleteStepNavigation();
@@ -893,7 +829,6 @@ public class TreeController implements Initializable {
         }
     }
 
-    // 修改步骤显示方法
     private void showDeleteStep(int stepIndex) {
         if (currentDeleteSteps == null || currentDeleteSteps.isEmpty()) {
             return;
@@ -905,22 +840,16 @@ public class TreeController implements Initializable {
         currentDeleteStepIndex = stepIndex;
         BST.DeleteStep step = currentDeleteSteps.get(stepIndex);
 
-        // 绘制当前步骤（树结构保持不变）
         bstVisualizer.drawDeleteStep(bst.getRoot(), step, stepIndex, currentDeleteSteps.size());
-
-        // 更新步骤导航
         updateDeleteStepNavigation();
 
-        // 更新输出信息
         String status = "🔍 步骤演示中 (树结构未改变)\n";
         bstOutput.setText(status + "步骤 " + (stepIndex + 1) + "/" + currentDeleteSteps.size() +
                 "\n" + step.description);
 
-        // 请求焦点以便接收键盘事件
         bstCanvas.requestFocus();
     }
 
-    // 删除步骤导航方法
     private void previousDeleteStep() {
         if (currentDeleteStepIndex > 0) {
             showDeleteStep(currentDeleteStepIndex - 1);
@@ -946,28 +875,23 @@ public class TreeController implements Initializable {
         currentDeleteStepIndex = 0;
         deleteAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentDeleteSteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 2.0), // 每2秒一个步骤
+                    Duration.seconds(i * 2.0),
                     e -> showDeleteStep(stepIndex)
             );
             deleteAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentDeleteSteps.size() * 2.0 + 1),
-                e -> {
-                    bstOutput.setText("自动演示完成！使用导航按钮重新查看步骤");
-                }
+                e -> bstOutput.setText("自动演示完成！使用导航按钮重新查看步骤")
         );
         deleteAnimation.getKeyFrames().add(finalFrame);
 
         deleteAnimation.setCycleCount(1);
         deleteAnimation.play();
-
         bstOutput.setText("删除自动演示中...\n按空格键停止演示");
     }
 
@@ -981,6 +905,23 @@ public class TreeController implements Initializable {
         updateDeleteStepNavigation();
         bstOutput.setText("删除演示已重置");
     }
+
+    private void updateDeleteStepNavigation() {
+        if (currentDeleteSteps == null || currentDeleteSteps.isEmpty()) {
+            prevDeleteStepBtn.setDisable(true);
+            nextDeleteStepBtn.setDisable(true);
+            deleteAutoDemoBtn.setDisable(true);
+            resetDeleteBtn.setDisable(true);
+            deleteStepInfoLabel.setText("步骤: 0/0");
+        } else {
+            deleteStepInfoLabel.setText("步骤: " + (currentDeleteStepIndex + 1) + "/" + currentDeleteSteps.size());
+            prevDeleteStepBtn.setDisable(currentDeleteStepIndex == 0);
+            nextDeleteStepBtn.setDisable(currentDeleteStepIndex == currentDeleteSteps.size() - 1);
+            deleteAutoDemoBtn.setDisable(false);
+            resetDeleteBtn.setDisable(false);
+        }
+    }
+
     // ========== 哈夫曼树操作 ==========
 
     private void buildHuffmanTree() {
@@ -992,8 +933,6 @@ public class TreeController implements Initializable {
             }
 
             huffmanTree = new HuffmanTree();
-
-            // 使用带步骤的构建方法
             currentHuffmanSteps = huffmanTree.buildTreeWithSteps(input);
             currentHuffmanStepIndex = 0;
 
@@ -1028,18 +967,11 @@ public class TreeController implements Initializable {
         currentHuffmanStepIndex = stepIndex;
         HuffmanTree.HuffmanStep step = currentHuffmanSteps.get(stepIndex);
 
-        // 绘制当前步骤
         huffmanVisualizer.drawHuffmanStep(huffmanTree.getRoot(), step,
                 stepIndex, currentHuffmanSteps.size());
-
-        // 更新步骤导航
         updateHuffmanStepNavigation();
-
-        // 更新输出信息
         huffmanOutput.setText("步骤 " + (stepIndex + 1) + "/" + currentHuffmanSteps.size() +
                 "\n" + step.description);
-
-        // 请求焦点以便接收键盘事件
         huffmanCanvas.requestFocus();
     }
 
@@ -1068,28 +1000,23 @@ public class TreeController implements Initializable {
         currentHuffmanStepIndex = 0;
         huffmanAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentHuffmanSteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 2.0), // 每2秒一个步骤
+                    Duration.seconds(i * 2.0),
                     e -> showHuffmanStep(stepIndex)
             );
             huffmanAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentHuffmanSteps.size() * 2.0 + 1),
-                e -> {
-                    huffmanOutput.setText("自动演示完成！使用导航按钮重新查看步骤");
-                }
+                e -> huffmanOutput.setText("自动演示完成！使用导航按钮重新查看步骤")
         );
         huffmanAnimation.getKeyFrames().add(finalFrame);
 
         huffmanAnimation.setCycleCount(1);
         huffmanAnimation.play();
-
         huffmanOutput.setText("自动演示中...\n按空格键停止演示");
     }
 
@@ -1123,8 +1050,6 @@ public class TreeController implements Initializable {
     private void insertAVL() {
         try {
             int value = Integer.parseInt(avlValueField.getText());
-
-            // 使用带步骤的插入方法
             currentAvlSteps = avlTree.insertWithSteps(value);
             currentAvlStepIndex = 0;
 
@@ -1133,7 +1058,6 @@ public class TreeController implements Initializable {
                 avlOutput.setText("开始AVL树插入演示... 使用导航按钮查看详细步骤");
             }
 
-            // 清空输入框
             avlValueField.clear();
             updateTreeInfo();
 
@@ -1154,7 +1078,6 @@ public class TreeController implements Initializable {
             String result = found ? "✓ 找到节点: " + value : "✗ 未找到节点: " + value;
             avlOutput.setText(result);
 
-            // 高亮显示找到的节点
             if (found) {
                 avlVisualizer.drawAVLTree(avlTree.getRoot());
             }
@@ -1185,14 +1108,10 @@ public class TreeController implements Initializable {
         currentAvlStepIndex = stepIndex;
         AVLTree.AVLStep step = currentAvlSteps.get(stepIndex);
 
-        // 使用真实树状态进行绘制
         AVLTree.AVLNode currentTreeState = step.treeState != null ? step.treeState : avlTree.getRoot();
         avlVisualizer.drawAVLTreeWithSteps(currentTreeState, step, stepIndex, currentAvlSteps.size());
-
-        // 更新步骤导航
         updateAvlStepNavigation();
 
-        // 更新输出信息
         String output = "步骤 " + (stepIndex + 1) + "/" + currentAvlSteps.size() +
                 "\n" + step.description;
 
@@ -1212,8 +1131,6 @@ public class TreeController implements Initializable {
         }
 
         avlOutput.setText(output);
-
-        // 请求焦点以便接收键盘事件
         avlCanvas.requestFocus();
     }
 
@@ -1242,28 +1159,23 @@ public class TreeController implements Initializable {
         currentAvlStepIndex = 0;
         avlAnimation = new Timeline();
 
-        // 为每个步骤创建关键帧
         for (int i = 0; i < currentAvlSteps.size(); i++) {
             final int stepIndex = i;
             KeyFrame keyFrame = new KeyFrame(
-                    Duration.seconds(i * 1.5), // 每1.5秒一个步骤
+                    Duration.seconds(i * 1.5),
                     e -> showAvlStep(stepIndex)
             );
             avlAnimation.getKeyFrames().add(keyFrame);
         }
 
-        // 添加完成后的延迟
         KeyFrame finalFrame = new KeyFrame(
                 Duration.seconds(currentAvlSteps.size() * 1.5 + 1),
-                e -> {
-                    avlOutput.setText("自动演示完成！使用导航按钮重新查看步骤");
-                }
+                e -> avlOutput.setText("自动演示完成！使用导航按钮重新查看步骤")
         );
         avlAnimation.getKeyFrames().add(finalFrame);
 
         avlAnimation.setCycleCount(1);
         avlAnimation.play();
-
         avlOutput.setText("自动演示中...\n按空格键停止演示");
     }
 
@@ -1292,6 +1204,218 @@ public class TreeController implements Initializable {
         }
     }
 
+    // ========== 树形结构存档管理方法 ==========
+
+    // 刷新保存文件列表
+    private void refreshTreeSavedFiles() {
+        List<String> savedFiles = TreeArchiveManager.getSavedTreeFiles();
+        savedTreeFilesCombo.getItems().setAll(savedFiles);
+        if (!savedFiles.isEmpty()) {
+            savedTreeFilesCombo.setValue(savedFiles.get(0));
+        }
+    }
+
+    // 删除保存文件
+    private void deleteTreeSaveFile() {
+        String filename = savedTreeFilesCombo.getValue();
+        if (filename != null && !filename.isEmpty()) {
+            if (TreeArchiveManager.deleteTreeSaveFile(filename)) {
+                refreshTreeSavedFiles();
+                showTreeAlert("成功", "文件删除成功: " + filename);
+            } else {
+                showTreeAlert("错误", "文件删除失败: " + filename);
+            }
+        }
+    }
+
+    // 保存二叉树
+    private void saveBinaryTree() {
+        if (binaryTree == null || binaryTree.isEmpty()) {
+            showTreeAlert("错误", "请先创建二叉树");
+            return;
+        }
+
+        String filename = treeArchiveNameField.getText();
+        String description = treeArchiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showTreeAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = binaryTree.saveToArchive(description);
+        if (TreeArchiveManager.saveTreeStructure(archiveData, filename)) {
+            showTreeAlert("成功", "二叉树保存成功: " + filename);
+            refreshTreeSavedFiles();
+            treeArchiveNameField.clear();
+            treeArchiveDescriptionField.clear();
+        } else {
+            showTreeAlert("错误", "二叉树保存失败");
+        }
+    }
+
+    // 加载二叉树
+    private void loadBinaryTree() {
+        String filename = savedTreeFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showTreeAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = TreeArchiveManager.loadTreeStructure(filename);
+        if (archiveData != null && "binary".equals(archiveData.treeType)) {
+            binaryTree = BinaryTree.loadFromArchive(archiveData);
+            binaryTreeVisualizer.drawBinaryTree(binaryTree.getRoot(), "binary");
+            binaryTreeOutput.setText("二叉树加载成功: " + archiveData.description);
+            updateTreeInfo();
+        } else {
+            showTreeAlert("错误", "文件格式不正确或不是二叉树存档");
+        }
+    }
+
+    // 保存BST
+    private void saveBST() {
+        if (bst == null || bst.isEmpty()) {
+            showTreeAlert("错误", "请先创建BST");
+            return;
+        }
+
+        String filename = treeArchiveNameField.getText();
+        String description = treeArchiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showTreeAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = bst.saveToArchive(description);
+        if (TreeArchiveManager.saveTreeStructure(archiveData, filename)) {
+            showTreeAlert("成功", "BST保存成功: " + filename);
+            refreshTreeSavedFiles();
+            treeArchiveNameField.clear();
+            treeArchiveDescriptionField.clear();
+        } else {
+            showTreeAlert("错误", "BST保存失败");
+        }
+    }
+
+    // 加载BST
+    private void loadBST() {
+        String filename = savedTreeFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showTreeAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = TreeArchiveManager.loadTreeStructure(filename);
+        if (archiveData != null && "bst".equals(archiveData.treeType)) {
+            bst = BST.loadFromArchive(archiveData);
+            bstVisualizer.drawBinaryTree(bst.getRoot(), "bst");
+            bstOutput.setText("BST加载成功: " + archiveData.description);
+            updateTreeInfo();
+        } else {
+            showTreeAlert("错误", "文件格式不正确或不是BST存档");
+        }
+    }
+
+    // 保存哈夫曼树
+    private void saveHuffmanTree() {
+        if (huffmanTree == null || huffmanTree.getRoot() == null) {
+            showTreeAlert("错误", "请先构建哈夫曼树");
+            return;
+        }
+
+        String filename = treeArchiveNameField.getText();
+        String description = treeArchiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showTreeAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = huffmanTree.saveToArchive(description);
+        if (TreeArchiveManager.saveTreeStructure(archiveData, filename)) {
+            showTreeAlert("成功", "哈夫曼树保存成功: " + filename);
+            refreshTreeSavedFiles();
+            treeArchiveNameField.clear();
+            treeArchiveDescriptionField.clear();
+        } else {
+            showTreeAlert("错误", "哈夫曼树保存失败");
+        }
+    }
+
+    // 加载哈夫曼树
+    private void loadHuffmanTree() {
+        String filename = savedTreeFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showTreeAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = TreeArchiveManager.loadTreeStructure(filename);
+        if (archiveData != null && "huffman".equals(archiveData.treeType)) {
+            huffmanTree = HuffmanTree.loadFromArchive(archiveData);
+            huffmanVisualizer.drawHuffmanTree(huffmanTree.getRoot());
+            huffmanOutput.setText("哈夫曼树加载成功: " + archiveData.description);
+        } else {
+            showTreeAlert("错误", "文件格式不正确或不是哈夫曼树存档");
+        }
+    }
+
+    // 保存AVL树
+    private void saveAVLTree() {
+        if (avlTree == null || avlTree.isEmpty()) {
+            showTreeAlert("错误", "请先创建AVL树");
+            return;
+        }
+
+        String filename = treeArchiveNameField.getText();
+        String description = treeArchiveDescriptionField.getText();
+
+        if (filename.isEmpty()) {
+            showTreeAlert("错误", "请输入存档名称");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = avlTree.saveToArchive(description);
+        if (TreeArchiveManager.saveTreeStructure(archiveData, filename)) {
+            showTreeAlert("成功", "AVL树保存成功: " + filename);
+            refreshTreeSavedFiles();
+            treeArchiveNameField.clear();
+            treeArchiveDescriptionField.clear();
+        } else {
+            showTreeAlert("错误", "AVL树保存失败");
+        }
+    }
+
+    // 加载AVL树
+    private void loadAVLTree() {
+        String filename = savedTreeFilesCombo.getValue();
+        if (filename == null || filename.isEmpty()) {
+            showTreeAlert("错误", "请选择要加载的文件");
+            return;
+        }
+
+        TreeArchiveManager.TreeArchiveData archiveData = TreeArchiveManager.loadTreeStructure(filename);
+        if (archiveData != null && "avl".equals(archiveData.treeType)) {
+            avlTree = AVLTree.loadFromArchive(archiveData);
+            avlVisualizer.drawAVLTree(avlTree.getRoot());
+            avlOutput.setText("AVL树加载成功: " + archiveData.description);
+            updateTreeInfo();
+        } else {
+            showTreeAlert("错误", "文件格式不正确或不是AVL树存档");
+        }
+    }
+
+    // 辅助方法：显示树形结构提示框
+    private void showTreeAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     // ========== 辅助方法 ==========
 
     private void updateTreeInfo() {
@@ -1310,5 +1434,4 @@ public class TreeController implements Initializable {
                     avlTree.size(), avlTree.height()));
         }
     }
-
 }

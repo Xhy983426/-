@@ -1,16 +1,20 @@
 package com.datastructurevisualizer.model;
 
+import java.io.Serializable;
 
 import java.util.List;
 
-public class ArrayList {
+public class ArrayList implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int[] elements;
     private int size;
     private static final int DEFAULT_CAPACITY = 10;
-    private List<OperationStep> operationSteps;
+    private transient List<OperationStep> operationSteps;
 
-    public class OperationStep {
-        public String type; // "insert", "delete", "create", "move", "check", "prepare", "mark", "complete"
+    public class OperationStep implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public String type;
         public int value;
         public int position;
         public String description;
@@ -28,17 +32,55 @@ public class ArrayList {
         }
     }
 
+    // 可序列化的ArrayList版本
+    public static class ArrayListSerializable implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public int[] elements;
+        public int size;
+
+        public ArrayListSerializable(ArrayList list) {
+            this.elements = list.elements != null ? list.elements.clone() : new int[0];
+            this.size = list.size;
+        }
+    }
+
     public ArrayList() {
         elements = new int[DEFAULT_CAPACITY];
         size = 0;
         operationSteps = new java.util.ArrayList<OperationStep>();
-        // 初始化数组为默认值（可选）
-        for (int i = 0; i < DEFAULT_CAPACITY; i++) {
-            elements[i] = 0; // 或者使用其他默认值
-        }
     }
 
-    // 带步骤演示的插入方法
+    // 序列化方法
+    // 在 ArrayList 类中添加以下方法
+
+    // 序列化方法
+    public ArrayListSerializable toSerializable() {
+        return new ArrayListSerializable(this);
+    }
+
+    // 反序列化方法
+    public static ArrayList fromSerializable(ArrayListSerializable serializable) {
+        ArrayList list = new ArrayList();
+        if (serializable != null && serializable.elements != null) {
+            list.elements = serializable.elements.clone();
+            list.size = serializable.size;
+        }
+        return list;
+    }
+
+    // 存档管理方法
+    public ArchiveManager.ArchiveData saveToArchive(String description) {
+        return new ArchiveManager.ArchiveData("array", this.toSerializable(), description);
+    }
+
+    public static ArrayList loadFromArchive(ArchiveManager.ArchiveData archiveData) {
+        if (archiveData != null && archiveData.data instanceof ArrayListSerializable) {
+            return fromSerializable((ArrayListSerializable) archiveData.data);
+        }
+        return new ArrayList();
+    }
+
+    // 原有的操作方法保持不变
     public java.util.ArrayList<OperationStep> insertWithSteps(int index, int element) {
         operationSteps.clear();
 
@@ -53,18 +95,15 @@ public class ArrayList {
 
         ensureCapacity();
 
-        // 如果是第一个元素插入，直接插入
         if (size == 0) {
-            // 步骤2: 直接插入第一个元素
             OperationStep insertStep = new OperationStep("insert", element, index,
                     "插入第一个元素: " + element);
             insertStep.highlightedIndex = index;
             elements[index] = element;
             size++;
-            insertStep.arrayState = toArray(); // 确保数组状态正确
+            insertStep.arrayState = toArray();
             operationSteps.add(insertStep);
 
-            // 步骤3: 完成插入
             OperationStep finalStep = new OperationStep("complete", element, index,
                     "插入完成！新数组大小: " + size);
             finalStep.arrayState = toArray();
@@ -73,40 +112,32 @@ public class ArrayList {
             return new java.util.ArrayList<OperationStep>(operationSteps);
         }
 
-        // 步骤2: 创建插入位置空间
         if (index < size) {
             OperationStep step2 = new OperationStep("prepare", element, index,
                     "从位置 " + index + " 开始，后续元素需要向后移动");
             step2.highlightedIndex = index;
-            step2.arrayState = toArray(); // 记录移动前的状态
+            step2.arrayState = toArray();
             operationSteps.add(step2);
 
-            // 步骤3: 逐步移动元素（包括最后一个节点）
             for (int i = size - 1; i >= index; i--) {
                 OperationStep moveStep = new OperationStep("move", elements[i], i + 1,
                         "移动元素 " + elements[i] + " 从位置 " + i + " 到位置 " + (i + 1));
                 moveStep.highlightedIndex = i;
                 moveStep.movingIndexes = new int[]{i, i + 1};
-
-                // 执行移动
                 elements[i + 1] = elements[i];
-
-                // 重要：在移动后立即更新数组状态
                 moveStep.arrayState = toArray();
                 operationSteps.add(moveStep);
             }
         }
 
-        // 步骤4: 插入新元素
         OperationStep insertStep = new OperationStep("insert", element, index,
                 "在位置 " + index + " 插入新元素: " + element);
         insertStep.highlightedIndex = index;
         elements[index] = element;
-        size++; // 先更新大小
-        insertStep.arrayState = toArray(); // 再获取数组状态
+        size++;
+        insertStep.arrayState = toArray();
         operationSteps.add(insertStep);
 
-        // 步骤5: 完成插入
         OperationStep finalStep = new OperationStep("complete", element, index,
                 "插入完成！新数组大小: " + size);
         finalStep.arrayState = toArray();
@@ -115,9 +146,6 @@ public class ArrayList {
         return new java.util.ArrayList<OperationStep>(operationSteps);
     }
 
-
-
-    // 带步骤演示的删除方法
     public List<OperationStep> deleteWithSteps(int index) {
         operationSteps.clear();
 
@@ -127,13 +155,11 @@ public class ArrayList {
 
         int deletedValue = elements[index];
 
-        // 步骤1: 标记要删除的元素
         OperationStep step1 = new OperationStep("mark", deletedValue, index,
                 "标记要删除位置 " + index + " 的元素: " + deletedValue);
         step1.highlightedIndex = index;
         operationSteps.add(step1);
 
-        // 步骤2: 逐步前移元素
         for (int i = index; i < size - 1; i++) {
             OperationStep moveStep = new OperationStep("move", elements[i + 1], i,
                     "移动元素 " + elements[i + 1] + " 从位置 " + (i + 1) + " 到位置 " + i);
@@ -144,10 +170,8 @@ public class ArrayList {
             operationSteps.add(moveStep);
         }
 
-        // 步骤3: 更新大小
         size--;
 
-        // 步骤4: 完成删除
         OperationStep finalStep = new OperationStep("complete", deletedValue, index,
                 "删除完成！删除元素: " + deletedValue + ", 新数组大小: " + size);
         finalStep.arrayState = toArray();
@@ -155,7 +179,6 @@ public class ArrayList {
 
         return new java.util.ArrayList<OperationStep>(operationSteps);
     }
-
 
     public int get(int index) {
         if (index < 0 || index >= size) {
@@ -169,10 +192,9 @@ public class ArrayList {
     }
 
     public int[] toArray() {
-        // 返回包含所有已初始化元素的数组，而不仅仅是size范围内的
         int actualSize = 0;
         for (int i = 0; i < elements.length; i++) {
-            if (i < size || elements[i] != 0) { // 假设0是未初始化值
+            if (i < size || elements[i] != 0) {
                 actualSize = i + 1;
             }
         }
@@ -196,7 +218,6 @@ public class ArrayList {
     private void ensureCapacity() {
         if (size == elements.length) {
             int[] newElements = new int[elements.length * 2];
-            // 正确复制所有元素
             for (int i = 0; i < size; i++) {
                 newElements[i] = elements[i];
             }
